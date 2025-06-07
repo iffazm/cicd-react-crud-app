@@ -53,7 +53,8 @@ These new features were added.
      
 
 ### Credits
-This is a modified version of the CRUD App originally built by [Safdar Jamal](https://github.com/SafdarJamal/crud-app).
+This is a modified version by https://github.com/devadigax/react-crud-app of the CRUD App originally built by [Safdar Jamal](https://github.com/SafdarJamal/crud-app).
+Modifications were made for academic purposes, particularly to demonstrate CI/CD implementation in a custom deployment pipeline.
 
 ### License
 CRUD App is open-source software licensed under the MIT License.
