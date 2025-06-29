@@ -49,7 +49,7 @@ jobs:
             npm install -g railway@2.0.17
 
             echo "$Deploying to Railway..."
-            railway login --ci <<< "$TOKEN_APP_KEDUA"
+            echo "$TOKEN_APP_KEDUA" | railway login --ci
             railway up --service 43ab57fd-00b3-4426-b182-f3781038b227 -d || echo "Railway deploy failed"
             echo "Railway deploy finished"
 
