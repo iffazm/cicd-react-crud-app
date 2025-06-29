@@ -48,7 +48,8 @@ jobs:
             npm install -g @railway/cli
 
             echo "Deploying to Railway..."
-            railway up --service 43ab57fd-00b3-4426-b182-f3781038b227 -d --token $RAILWAY_TOKEN || echo "Railway deploy failed"
+            echo "$RAILWAY_TOKEN" | railway login --browserless
+            railway up --service 43ab57fd-00b3-4426-b182-f3781038b227 -d || echo "Railway deploy failed"
             echo "Railway deploy finished"
 
             echo "Stopping pidstat..."
@@ -65,6 +66,8 @@ jobs:
             else
               echo "usage.log not found"
             fi
+          environment:
+            RAILWAY_TOKEN: 7ce1c470-3cc3-42bb-a298-9249481ee049
 
       - store_artifacts:
           path: usage.log
