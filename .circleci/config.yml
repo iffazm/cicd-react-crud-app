@@ -1,0 +1,76 @@
+version: 2.1
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:20.10
+    working_directory: ~/project
+    resource_class: medium
+
+jobs:
+  build-and-deploy:
+    executor: node-executor
+    steps:
+      - checkout
+
+      - run:
+          name: Install pidstat for CPU/Memory monitoring
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y sysstat curl zip
+
+      - run:
+          name: Build Frontend + Deploy Backend to Railway
+          command: |
+            START_TIME=$(date +%s)
+
+            echo "Starting pidstat..."
+            nohup pidstat -r -u -h 1 > usage.log 2>&1 &
+            PIDSTAT_PID=$!
+            echo "Started pidstat with PID $PIDSTAT_PID"
+
+            echo "Installing frontend dependencies..."
+            npm install
+
+            echo "Building React app..."
+            npm run build
+
+            echo "Copying build to backend..."
+            rm -rf server/public
+            mkdir -p server/public
+            cp -r build/* server/public/
+
+            echo "Installing backend dependencies..."
+            cd server
+            npm install
+
+            echo "Installing Railway CLI..."
+            npm install -g @railway/cli
+
+            echo "Deploying to Railway..."
+            railway up --service cecfaaad-6e52-4f82-b201-87430d754ac6 -d || echo "Railway deploy failed"
+            echo "Railway deploy finished"
+
+            echo "Stopping pidstat..."
+            kill $PIDSTAT_PID || echo "pidstat already stopped"
+
+            END_TIME=$(date +%s)
+            echo "=============================="
+            echo "Total CI + CD Time: $((END_TIME - START_TIME)) seconds"
+            echo "=============================="
+
+            if [ -f usage.log ]; then
+              echo "==== usage.log ===="
+              cat usage.log
+            else
+              echo "usage.log not found"
+            fi
+
+      - store_artifacts:
+          path: usage.log
+          destination: cpu-memory-usage
+
+workflows:
+  ci_cd_pipeline:
+    jobs:
+      - build-and-deploy
