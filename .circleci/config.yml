@@ -65,8 +65,6 @@ jobs:
             else
               echo "usage.log not found"
             fi
-          environment:
-            RAILWAY_TOKEN: $TOKEN_APP_KEDUA
 
       - store_artifacts:
           path: usage.log
