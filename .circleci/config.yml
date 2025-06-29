@@ -47,7 +47,7 @@ jobs:
             echo "Installing Railway CLI..."
             npm install -g @railway/cli
 
-            echo "Deploying to Railway..."
+            echo "$TOKEN_APP_KEDUA" | railway login --browserless
             railway up --service 43ab57fd-00b3-4426-b182-f3781038b227 -d || echo "Railway deploy failed"
             echo "Railway deploy finished"
 
