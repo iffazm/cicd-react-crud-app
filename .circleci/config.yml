@@ -48,7 +48,7 @@ jobs:
             npm install -g @railway/cli
 
             echo "Deploying to Railway..."
-            railway up --service cecfaaad-6e52-4f82-b201-87430d754ac6 -d || echo "Railway deploy failed"
+            railway up --service 43ab57fd-00b3-4426-b182-f3781038b227 -d || echo "Railway deploy failed"
             echo "Railway deploy finished"
 
             echo "Stopping pidstat..."
