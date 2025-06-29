@@ -35,22 +35,12 @@ jobs:
             echo "Building React app..."
             npm run build
 
-            echo "Copying build to backend..."
-            rm -rf server/public
-            mkdir -p server/public
-            cp -r build/* server/public/
-
-            echo "Installing backend dependencies..."
-            cd server
-            npm install
-
             echo "Installing Railway CLI..."
             npm install -g @railway/cli
 
             echo "Deploying to Railway..."
-            cd ..
+            cd ~/project
             railway up --service 43ab57fd-00b3-4426-b182-f3781038b227 -d -- --token=$RAILWAY_TOKEN || echo "Railway deploy failed"
-            cd server
             echo "Railway deploy finished"
 
             echo "Stopping pidstat..."
