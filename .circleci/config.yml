@@ -40,7 +40,7 @@ jobs:
 
             echo "Deploying to Railway..."
             cd ~/project
-            railway up --service 43ab57fd-00b3-4426-b182-f3781038b227 -d -- --token=$RAILWAY_TOKEN || echo "Railway deploy failed"
+            railway up --service 04f70575-f182-4485-9d8b-211ca4804da0 -d || echo "Railway deploy failed"
             echo "Railway deploy finished"
 
             echo "Stopping pidstat..."
@@ -57,8 +57,8 @@ jobs:
             else
               echo "usage.log not found"
             fi
-          environment:
-            RAILWAY_TOKEN: 7ce1c470-3cc3-42bb-a298-9249481ee049
+          # environment:
+          #   RAILWAY_TOKEN: 7ce1c470-3cc3-42bb-a298-9249481ee049
 
       - store_artifacts:
           path: usage.log
