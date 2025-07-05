@@ -49,16 +49,15 @@ steps:
   displayName: 'Build React App'
 
 - script: |
-    echo "=== Create deploy.zip from server folder) ==="
-    cd server
-    zip -r ../deploy.zip ./*
-  displayName: 'Zip folder server into deploy.zip'
+    echo "=== Create deploy.zip ==="
+    zip -r $(Build.ArtifactStagingDirectory)/$(appName).zip index.js build/ package.json package-lock.json
+  displayName: 'Zip App Files'
 
 - task: AzureWebApp@1
   inputs:
     azureSubscription: '$(azureSubscription)'
     appName: '$(appName)'
-    package: 'deploy.zip'
+    package: '$(Build.ArtifactStagingDirectory)/$(appName).zip'
   displayName: 'Deploy to Azure Web App'
 
 - script: |

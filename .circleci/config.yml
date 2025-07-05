@@ -33,6 +33,7 @@ jobs:
             npm install
 
             echo "Building React app..."
+            export NODE_OPTIONS=--max-old-space-size=2048
             npm run build
 
             echo "Installing Railway CLI..."
