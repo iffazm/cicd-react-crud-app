@@ -50,18 +50,15 @@ steps:
 
 - script: |
     echo "=== Prepare for deployment (zip build folder) ==="
-    sudo apt get update
+    sudo apt-get update
     sudo apt-get install -y zip
-  displayName: 'Install zip utility'
 
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(packageFolder)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(appName).zip'
-    replaceExistingArchive: true
-  displayName: 'Archive Files'
+    echo "=== Zip folder server ==="
+    zip -r deploy.zip server package.json package-lock.json
+
+    echo "=== Move zip to staging directory ==="
+    mv deploy.zip $(Build.ArtifactStagingDirectory)/$(appName).zip
+  displayName: 'Install zip and create deploy.zip'
 
 - task: AzureWebApp@1
   inputs:
