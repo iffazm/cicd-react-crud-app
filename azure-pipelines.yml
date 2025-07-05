@@ -1,0 +1,91 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: Default
+
+variables:
+  azureSubscription: 'cicd-forta-connection'
+  appName: 'crudapp-react-forta'
+  packageFolder: '.'  
+
+steps:
+- script: |
+    echo "AGENT NAME: $(AGENT_NAME)"
+    echo "RUNNING ON: $(Agent.MachineName)"
+  displayName: 'Info: Agent Info'
+
+- script: |
+    echo "=== Record Start Time ==="
+    echo "START_TIME=$(date +%s)" >> time.env
+  displayName: 'Start Timer'
+
+- script: |
+    echo "=== Install pidstat for monitoring ==="
+    sudo apt-get update && sudo apt-get install -y sysstat
+  displayName: 'Install pidstat'
+
+- script: |
+    echo "=== Start Resource Monitoring ==="
+    nohup pidstat -r -u -h 1 > usage.log 2>&1 &
+    echo $! > pidstat.pid
+  displayName: 'Start Monitoring'
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    echo "=== Install dependencies ==="
+    npm install
+  displayName: 'Install Dependencies'
+
+- script: |
+    echo "=== Build React App ==="
+    npm run build
+  displayName: 'Build React App'
+
+- script: |
+    echo "=== Prepare for deployment (zip build folder) ==="
+    sudo apt get update
+    sudo apt-get install -y zip
+  displayName: 'Install zip utility'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(packageFolder)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(appName).zip'
+    replaceExistingArchive: true
+  displayName: 'Archive Files'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    appName: '$(appName)'
+    package: '$(Build.ArtifactStagingDirectory)/$(appName).zip'
+  displayName: 'Deploy to Azure Web App'
+
+- script: |
+    echo "=== Stop Monitoring and Show Summary ==="
+    kill -9 $(cat pidstat.pid) || echo "pidstat already stopped"
+
+    END_TIME=$(date +%s)
+    source time.env
+    TOTAL_TIME=$((END_TIME - START_TIME))
+
+    echo "=============================="
+    echo "Total CI + CD Time: $TOTAL_TIME seconds"
+    echo "=============================="
+  displayName: 'Stop Monitoring & Measure Time'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'usage.log'
+    ArtifactName: 'cpu-memory-usage'
+    publishLocation: 'Container'
+  displayName: 'Upload usage.log as Artifact'
