@@ -24,8 +24,8 @@ steps:
 
 - script: |
     echo "=== Install pidstat for monitoring ==="
-    sudo apt-get update && sudo apt-get install -y sysstat
-  displayName: 'Install pidstat'
+    sudo apt-get update && sudo apt-get install -y sysstat zip
+  displayName: 'Install pidstat and zip'
 
 - script: |
     echo "=== Start Resource Monitoring ==="
@@ -49,22 +49,16 @@ steps:
   displayName: 'Build React App'
 
 - script: |
-    echo "=== Prepare for deployment (zip build folder) ==="
-    sudo apt-get update
-    sudo apt-get install -y zip
-
-    echo "=== Zip folder server ==="
-    zip -r deploy.zip server package.json package-lock.json
-
-    echo "=== Move zip to staging directory ==="
-    mv deploy.zip $(Build.ArtifactStagingDirectory)/$(appName).zip
-  displayName: 'Install zip and create deploy.zip'
+    echo "=== Create deploy.zip from server folder) ==="
+    cd server
+    zip -r ../deploy.zip ./*
+  displayName: 'Zip folder server into deploy.zip'
 
 - task: AzureWebApp@1
   inputs:
     azureSubscription: '$(azureSubscription)'
     appName: '$(appName)'
-    package: '$(Build.ArtifactStagingDirectory)/$(appName).zip'
+    package: 'deploy.zip'
   displayName: 'Deploy to Azure Web App'
 
 - script: |
